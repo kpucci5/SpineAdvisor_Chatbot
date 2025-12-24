@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Embedding Options</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: #1f1f1f;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 50px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #0a0a0a;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #666;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 60px;
+        }
+
+        .option-card {
+            background: white;
+            border-radius: 10px;
+            padding: 28px;
+            border: 1px solid #e1e4e8;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .option-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        .option-card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 12px;
+            color: #0a0a0a;
+            font-weight: 600;
+        }
+
+        .option-card p {
+            color: #586069;
+            margin-bottom: 18px;
+            font-size: 0.95rem;
+        }
+
+        .use-case {
+            background: #f6f8fa;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #24292e;
+            border-left: 3px solid #6566FF;
+        }
+
+        .try-btn {
+            width: 100%;
+            padding: 12px;
+            background: #6566FF;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .try-btn:hover {
+            background: #5455E6;
+        }
+
+        .try-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Overlay Modal */
+        #overlay-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        #overlay-modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            position: relative;
+            width: 100%;
+            max-width: 920px;
+            height: 85vh;
+            max-height: 780px;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 38px;
+            height: 38px;
+            background: rgba(0, 0, 0, 0.6);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 10001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            transition: background 0.2s;
+        }
+
+        .close-btn:hover {
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        /* Sidebar */
+        #sidebar-panel {
+            position: fixed;
+            top: 0;
+            right: -480px;
+            width: 480px;
+            height: 100vh;
+            background: white;
+            box-shadow: -3px 0 15px rgba(0, 0, 0, 0.1);
+            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10000;
+        }
+
+        #sidebar-panel.active {
+            right: 0;
+        }
+
+        #sidebar-panel .close-btn {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        #sidebar-panel .close-btn:hover {
+            background: #e0e0e0;
+        }
+
+        /* Widget */
+        .widget-wrap {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9999;
+        }
+
+        .widget-btn {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background: #6566FF;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(101, 102, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+            color: white;
+            font-size: 26px;
+        }
+
+        .widget-btn:hover {
+            transform: scale(1.08);
+            box-shadow: 0 6px 16px rgba(101, 102, 255, 0.4);
+        }
+
+        .widget-window {
+            position: fixed;
+            bottom: 94px;
+            right: 24px;
+            width: 400px;
+            height: 580px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+            display: none;
+            overflow: hidden;
+        }
+
+        .widget-window.active {
+            display: block;
+        }
+
+        /* Inline Section */
+        .inline-section {
+            background: white;
+            border-radius: 10px;
+            padding: 32px;
+            border: 1px solid #e1e4e8;
+            margin-bottom: 60px;
+        }
+
+        .inline-section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #0a0a0a;
+        }
+
+        .inline-section>p {
+            color: #586069;
+            margin-bottom: 20px;
+        }
+
+        .inline-frame {
+            width: 100%;
+            height: 650px;
+            border: none;
+            border-radius: 8px;
+            background: #fafbfc;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Code Section */
+        .code-examples {
+            margin-top: 60px;
+        }
+
+        .code-examples h1 {
+            font-size: 2rem;
+            margin-bottom: 30px;
+        }
+
+        .code-block {
+            background: white;
+            border-radius: 10px;
+            padding: 28px;
+            border: 1px solid #e1e4e8;
+            margin-bottom: 24px;
+        }
+
+        .code-block h2 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: #0a0a0a;
+        }
+
+        .code-snippet {
+            margin-bottom: 24px;
+        }
+
+        .code-snippet:last-child {
+            margin-bottom: 0;
+        }
+
+        .code-snippet h3 {
+            font-size: 0.9rem;
+            color: #57606a;
+            margin-bottom: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .code-snippet pre {
+            background: #24292e;
+            color: #e6edf3;
+            padding: 18px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 13.5px;
+            line-height: 1.7;
+        }
+
+        .code-snippet code {
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                max-width: 100%;
+                height: 100vh;
+                max-height: 100vh;
+                border-radius: 0;
+            }
+
+            #sidebar-panel {
+                width: 100%;
+                right: -100%;
+            }
+
+            .widget-window {
+                width: calc(100% - 20px);
+                height: calc(100vh - 100px);
+                right: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Chatbot Embed Options</h1>
+            <p class="subtitle">Five ways to add a chatbot to your site. Try them out, pick what works.</p>
+        </header>
+
+        <div class="options-grid">
+            <div class="option-card">
+                <h2>Full Page Modal</h2>
+                <p>Opens centered on the screen with a dark background overlay. Gets full attention.</p>
+                <div class="use-case">
+                    Works well for: intake forms, consultations, important interactions
+                </div>
+                <button class="try-btn" onclick="openOverlay()">Try it</button>
+            </div>
+
+            <div class="option-card">
+                <h2>Sidebar Panel</h2>
+                <p>Slides in from the right side. Page content stays visible behind it.</p>
+                <div class="use-case">
+                    Works well for: support while browsing, quick questions, documentation help
+                </div>
+                <button class="try-btn" onclick="openSidebar()">Try it</button>
+            </div>
+
+            <div class="option-card">
+                <h2>Corner Widget</h2>
+                <p>Floating button in the bottom right. Typical chat interface most people recognize.</p>
+                <div class="use-case">
+                    Works well for: always-on support, help desk, customer service
+                </div>
+                <button class="try-btn" onclick="openWidget()">Try it</button>
+            </div>
+
+            <div class="option-card">
+                <h2>New Tab</h2>
+                <p>Opens the chat in a separate browser tab. Dead simple to implement.</p>
+                <div class="use-case">
+                    Works well for: existing buttons, mobile apps, simple links
+                </div>
+                <button class="try-btn" onclick="openNewTab()">Try it</button>
+            </div>
+        </div>
+
+        <div class="inline-section">
+            <h2>Inline Embed</h2>
+            <p>Built directly into the page. Good for dedicated contact or help pages.</p>
+            <div class="use-case">
+                Works well for: support centers, contact pages, help documentation
+            </div>
+            <iframe src="https://spine-doc-chatbot.vercel.app" class="inline-frame" title="Inline Chatbot">
+            </iframe>
+        </div>
+
+        <div class="code-examples">
+            <h1>Implementation Code</h1>
+
+            <div class="code-block">
+                <h2>Full Page Modal</h2>
+                <div class="code-snippet">
+                    <h3>HTML</h3>
+                    <pre><code>&lt;button onclick="openChat()"&gt;Chat&lt;/button&gt;
+
+&lt;div id="chat-overlay"&gt;
+  &lt;div class="modal-box"&gt;
+    &lt;button class="close-btn" onclick="closeChat()"&gt;×&lt;/button&gt;
+    &lt;iframe src="https://your-chatbot.vercel.app"&gt;&lt;/iframe&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                </div>
+
+                <div class="code-snippet">
+                    <h3>CSS</h3>
+                    <pre><code>#chat-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  z-index: 10000;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+#chat-overlay.active { display: flex; }
+
+.modal-box {
+  position: relative;
+  width: 100%;
+  max-width: 920px;
+  height: 85vh;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.close-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 38px;
+  height: 38px;
+  background: rgba(0, 0, 0, 0.6);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 1;
+}
+
+iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}</code></pre>
+                </div>
+
+                <div class="code-snippet">
+                    <h3>JavaScript</h3>
+                    <pre><code>function openChat() {
+  document.getElementById('chat-overlay').classList.add('active');
+}
+
+function closeChat() {
+  document.getElementById('chat-overlay').classList.remove('active');
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeChat();
+});</code></pre>
+                </div>
+            </div>
+
+            <div class="code-block">
+                <h2>Sidebar Panel</h2>
+                <div class="code-snippet">
+                    <h3>HTML</h3>
+                    <pre><code>&lt;button onclick="openSidePanel()"&gt;Chat&lt;/button&gt;
+
+&lt;div id="chat-sidebar"&gt;
+  &lt;button class="close-btn" onclick="closeSidePanel()"&gt;×&lt;/button&gt;
+  &lt;iframe src="https://your-chatbot.vercel.app"&gt;&lt;/iframe&gt;
+&lt;/div&gt;</code></pre>
+                </div>
+
+                <div class="code-snippet">
+                    <h3>CSS</h3>
+                    <pre><code>#chat-sidebar {
+  position: fixed;
+  top: 0;
+  right: -480px;
+  width: 480px;
+  height: 100vh;
+  background: white;
+  box-shadow: -3px 0 15px rgba(0, 0, 0, 0.1);
+  transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10000;
+}
+
+#chat-sidebar.active { right: 0; }
+
+iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}</code></pre>
+                </div>
+
+                <div class="code-snippet">
+                    <h3>JavaScript</h3>
+                    <pre><code>function openSidePanel() {
+  document.getElementById('chat-sidebar').classList.add('active');
+}
+
+function closeSidePanel() {
+  document.getElementById('chat-sidebar').classList.remove('active');
+}</code></pre>
+                </div>
+            </div>
+
+            <div class="code-block">
+                <h2>New Tab</h2>
+                <div class="code-snippet">
+                    <h3>As a link</h3>
+                    <pre><code>&lt;a href="https://your-chatbot.vercel.app" target="_blank"&gt;
+  Chat
+&lt;/a&gt;</code></pre>
+                </div>
+
+                <div class="code-snippet">
+                    <h3>From a button</h3>
+                    <pre><code>&lt;button onclick="window.open('https://your-chatbot.vercel.app', '_blank')"&gt;
+  Chat
+&lt;/button&gt;</code></pre>
+                </div>
+            </div>
+
+            <div class="code-block">
+                <h2>Inline Embed</h2>
+                <div class="code-snippet">
+                    <h3>HTML</h3>
+                    <pre><code>&lt;iframe 
+  src="https://your-chatbot.vercel.app" 
+  width="100%" 
+  height="650px"
+  style="border: none; border-radius: 8px;"&gt;
+&lt;/iframe&gt;</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay Modal -->
+    <div id="overlay-modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeOverlay()">×</button>
+            <iframe src="https://spine-doc-chatbot.vercel.app"></iframe>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar-panel">
+        <button class="close-btn" onclick="closeSidebar()">×</button>
+        <iframe src="https://spine-doc-chatbot.vercel.app"></iframe>
+    </div>
+
+    <!-- Widget -->
+    <div class="widget-wrap">
+        <button class="widget-btn" onclick="toggleWidget()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M20 2H4C2.9 2 2.01 2.9 2.01 4L2 22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2ZM18 14H6V12H18V14ZM18 11H6V9H18V11ZM18 8H6V6H18V8Z"
+                    fill="white" />
+            </svg>
+        </button>
+        <div class="widget-window">
+            <iframe src="https://spine-doc-chatbot.vercel.app"></iframe>
+        </div>
+    </div>
+
+    <script>
+        const CHATBOT_URL = 'https://spine-doc-chatbot.vercel.app';
+
+        function openOverlay() {
+            document.getElementById('overlay-modal').classList.add('active');
+        }
+
+        function closeOverlay() {
+            document.getElementById('overlay-modal').classList.remove('active');
+        }
+
+        function openSidebar() {
+            document.getElementById('sidebar-panel').classList.add('active');
+        }
+
+        function closeSidebar() {
+            document.getElementById('sidebar-panel').classList.remove('active');
+        }
+
+        function openWidget() {
+            document.querySelector('.widget-window').classList.add('active');
+            document.querySelector('.widget-btn').innerHTML = '×';
+            document.querySelector('.widget-btn').style.fontSize = '32px';
+        }
+
+        function closeWidget() {
+            document.querySelector('.widget-window').classList.remove('active');
+            document.querySelector('.widget-btn').innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 2H4C2.9 2 2.01 2.9 2.01 4L2 22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2ZM18 14H6V12H18V14ZM18 11H6V9H18V11ZM18 8H6V6H18V8Z" fill="white"/></svg>';
+            document.querySelector('.widget-btn').style.fontSize = '26px';
+        }
+
+        function toggleWidget() {
+            const widget = document.querySelector('.widget-window');
+            widget.classList.contains('active') ? closeWidget() : openWidget();
+        }
+
+        function openNewTab() {
+            window.open(CHATBOT_URL, '_blank');
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeOverlay();
+                closeSidebar();
+                closeWidget();
+            }
+        });
+
+        document.getElementById('overlay-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'overlay-modal') {
+                closeOverlay();
+            }
+        });
+    </script>
+</body>
+
+</html>
